@@ -9,7 +9,7 @@ function makeBox(str) {
     const BOX_WIDTH = 3;
     const totalSpace = BOX_WIDTH - str.length;
     const paddedStr = str.padStart((totalSpace / 2) + str.length, ' ').padEnd(BOX_WIDTH);
-    return `||\`${paddedStr}\`||`;
+    return `||\`${paddedStr}\`|| `;
 }
 
 /**
@@ -47,42 +47,73 @@ function generatePlayfield(cols, rows) {
     return playfield;
 }
 
-function placeBombs(playfield, bombcount) {
-    for(var i = 0; i < bombcount; i++) {
-        let placed = false;
-        while(!placed) {
-            const bombRow = Math.floor(Math.random() * playfield.length);
-            const bombCol = Math.floor(Math.random() * playfield[bombRow].length);
+/**
+ * So now we have a function to place a bomb.
+ * @param playfield that danged playfield again this should be a class variable
+ * @param row what is this
+ * @param col what could it be???
+ */
+function placeBomb(playfield, row, col) {
+    playfield[row][col] = ":'(";
+    for (let i = row - 1; i < row + 2; i++) {
+        if (i < 0 || i > playfield.length-1) continue;
+        for (let j = col - 1; j < col + 2; j++) {
+            if (j < 0 || j > playfield[i].length-1) continue;
+            const val = playfield[i][j];
 
-            if (playfield[bombRow][bombCol] === "") {
-                playfield[bombRow][bombCol] = ":'(";
-                placed = true;
-            }
+            // Check its not also a bomb
+            if (val === ":'(") continue;
+
+            // Increment
+            console.log(i, j, val);
+            playfield[i][j] = (parseInt(val || 0) + 1).toString();
+            console.log(playfield[i][j]);
         }
     }
 }
 
-let cols = 9;
-let rows = 9;
-let bombs = 9;
+/**
+ * Generates randomized bomb locations.
+ * @param playfield the danged playfield
+ * @param bombcount how many bombizzles, if you go over the size of the playfield you'll crash
+ */
+function placeBombs(playfield, bombcount) {
+    for(let i = 0; i < bombcount; i++) {
+        let attempts = 0;
+        while(attempts < 10) {
+            const bombRow = Math.floor(Math.random() * playfield.length);
+            const bombCol = Math.floor(Math.random() * playfield[bombRow].length);
 
-let playfield = generatePlayfield(cols, rows);
-placeBombs(playfield, bombs);
+            if (playfield[bombRow][bombCol] === "") {
+                placeBomb(playfield, bombRow, bombCol);
+                attempts = 11;
+            }
 
-console.log(renderPlayfield(playfield));
+            attempts++;
+        }
+    }
+}
+
+window.goMakeStuff = () => {
+    const bombCount = parseInt(document.getElementById('bombcount').value);
+    const colCount = parseInt(document.getElementById('colcount').value);
+    const rowCount = parseInt(document.getElementById('rowcount').value);
+    const output = document.getElementById('copypasta');
+
+    let playfield = generatePlayfield(colCount, rowCount);
+    placeBombs(playfield, bombCount);
+    output.value = renderPlayfield(playfield);
+    return false;
+}
 
 /**
- *
- **There are 6 mines.**
-
- ||`   `||||`   `||||`   `||||`   `||||`   `||||` 1 `||||` 2 `||||`:'(`||||`   `||
- ||`   `||||`   `||||`   `||||`   `||||`   `||||` 2 `||||`:'(`||||` 3 `||||`   `||
- ||`   `||||`   `||||`   `||||` 1 `||||` 1 `||||` 3 `||||`:'(`||||` 2 `||||`   `||
- ||`   `||||`   `||||`   `||||` 1 `||||`:'(`||||` 2 `||||` 1 `||||` 1 `||||`   `||
- ||` 1 `||||` 1 `||||` 1 `||||` 1 `||||` 1 `||||` 1 `||||` 1 `||||` 1 `||||` 1 `||
- ||` 1 `||||`:'(`||||` 1 `||||`   `||||`   `||||`   `||||` 1 `||||`:'(`||||` 1 `||
- ||` 1 `||||` 1 `||||` 1 `||||`   `||||`   `||||`   `||||` 1 `||||` 1 `||||` 1 `||
- ||`   `||||`   `||||`   `||||`   `||||`   `||||`   `||||`   `||||`   `||||`   `||
- ||`   `||||`   `||||`   `||||`   `||||`   `||||`   `||||`   `||||`   `||||`   `||
-
+ 1  :'(  2   1   2   1   1
+ 1   1   2  :'(  2  :'(  1
+ 1   1   2   1   1
+ 1   1   1                   1   1
+ 1  :'(  1       1   1   1   1  :'(
+ 2   2   1       1  :'(  1   2   2
+ :'(  1           2   2   2   1  :'(
+ 1   1           1  :'(  1   1   1
+ 1   1   1
 */

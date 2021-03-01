@@ -7,6 +7,22 @@
     <script type="module" src="./main.js"></script>
 </head>
 <body>
-
+<form id="make-stuff-form" onsubmit="return window.goMakeStuff()">
+    <div>
+        <label for="rowcount">Rows: </label>
+        <input type="number" id="rowcount" value="9" />
+    </div>
+    <div>
+        <label for="colcount">Columns: </label>
+        <input type="number" id="colcount" value="9" />
+    </div>
+    <div>
+        <label for="bombcount">Bombs: </label>
+        <input type="number" id="bombcount" value="9" />
+    </div>
+    <button type="submit">Go Make Stuff!</button>
+    <hr />
+    <textarea id="copypasta" readonly style="width: 80rem; height: 24rem;"></textarea>
+</form>
 </body>
 </html>
